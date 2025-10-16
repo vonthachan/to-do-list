@@ -1,35 +1,69 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from "react";
 
-function App() {
-  const [count, setCount] = useState(0)
-
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+interface Todo {
+  id: number;
+  text: string;
+  done: boolean;
 }
 
-export default App
+export default function App() {
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [input, setInput] = useState("");
+
+  return (
+    <div style={{ padding: "20px", fontFamily: "Arial" }}>
+      <h1>My Todo App</h1>
+
+      <div>
+        <input
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          placeholder="Add a new todo..."
+        />
+        <button
+          onClick={() => {
+            if (input.trim()) {
+              setTodos([
+                ...todos,
+                { id: Date.now(), text: input, done: false },
+              ]);
+              setInput("");
+            }
+          }}
+        >
+          Add
+        </button>
+      </div>
+
+      <ul>
+        {todos.map((todo) => (
+          <li key={todo.id} style={{ marginBottom: "10px" }}>
+            <input
+              type="checkbox"
+              checked={todo.done}
+              onChange={() => {
+                setTodos(
+                  todos.map((t) =>
+                    t.id === todo.id ? { ...t, done: !t.done } : t
+                  )
+                );
+              }}
+            />
+            <span
+              style={{ textDecoration: todo.done ? "line-through" : "none" }}
+            >
+              {todo.text}
+            </span>
+            <button
+              onClick={() => setTodos(todos.filter((t) => t.id !== todo.id))}
+            >
+              Delete
+            </button>
+          </li>
+        ))}
+      </ul>
+
+      <p>Total: {todos.length}</p>
+    </div>
+  );
+}
