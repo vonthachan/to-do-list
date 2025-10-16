@@ -9,6 +9,8 @@ interface Todo {
 export default function App() {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [input, setInput] = useState("");
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editText, setEditText] = useState("");
 
   return (
     <div style={{ padding: "20px", fontFamily: "Arial" }}>
@@ -38,27 +40,67 @@ export default function App() {
       <ul>
         {todos.map((todo) => (
           <li key={todo.id} style={{ marginBottom: "10px" }}>
-            <input
-              type="checkbox"
-              checked={todo.done}
-              onChange={() => {
-                setTodos(
-                  todos.map((t) =>
-                    t.id === todo.id ? { ...t, done: !t.done } : t
-                  )
-                );
-              }}
-            />
-            <span
-              style={{ textDecoration: todo.done ? "line-through" : "none" }}
-            >
-              {todo.text}
-            </span>
-            <button
-              onClick={() => setTodos(todos.filter((t) => t.id !== todo.id))}
-            >
-              Delete
-            </button>
+            {editingId === todo.id ? (
+              // EDIT MODE: Show input field
+              <>
+                <input
+                  value={editText}
+                  onChange={(e) => setEditText(e.target.value)}
+                  placeholder="Edit todo..."
+                />
+                <button
+                  onClick={() => {
+                    setTodos(
+                      todos.map((t) =>
+                        t.id === todo.id ? { ...t, text: editText } : t
+                      )
+                    );
+                    setEditingId(null);
+                    setEditText("");
+                  }}
+                >
+                  Save
+                </button>
+                <button onClick={() => setEditingId(null)}>Cancel</button>
+              </>
+            ) : (
+              // VIEW MODE: Show todo text
+              <>
+                <input
+                  type="checkbox"
+                  checked={todo.done}
+                  onChange={() => {
+                    setTodos(
+                      todos.map((t) =>
+                        t.id === todo.id ? { ...t, done: !t.done } : t
+                      )
+                    );
+                  }}
+                />
+                <span
+                  style={{
+                    textDecoration: todo.done ? "line-through" : "none",
+                  }}
+                >
+                  {todo.text}
+                </span>
+                <button
+                  onClick={() => {
+                    setEditingId(todo.id);
+                    setEditText(todo.text);
+                  }}
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() =>
+                    setTodos(todos.filter((t) => t.id !== todo.id))
+                  }
+                >
+                  Delete
+                </button>
+              </>
+            )}
           </li>
         ))}
       </ul>
